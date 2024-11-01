@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build-meta"
+
+[project]
+name = "lp55231"
+version = "0.0.1"
+authors = [
+  {name="Paul Morenkov", email="paulmorenkov@gmail.com"}
+]
+description = "lp55231 LED emitter bindings for i2cdevice and telemetrix"
+readme = "README.md"
+requires-python = ">=3.8"
+
+[project.urls]
+Homepage = "https://github.com/paul-morenkov/lp55231"
+Issues = "https://github.com/paul-morenkov/lp55231/issues"
+
