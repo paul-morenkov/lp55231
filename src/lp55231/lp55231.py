@@ -1,7 +1,7 @@
 from i2cdevice import BitField, Device, Register
 from telemetrix.telemetrix import Telemetrix
 
-Device(
+dev = Device(
     0x32,
     registers=(
         Register(
@@ -145,15 +145,15 @@ Device(
         Register("D8_PWM", 0x1D, fields=(BitField("pwm", 0xFF))),
         Register("D9_PWM", 0x1E, fields=(BitField("pwm", 0xFF))),
         # 1F to 25 reserved
-        Register("D1_I_CTL", 0x26, fields=(BitField("pwm", 0xFF))),
-        Register("D2_I_CTL", 0x27, fields=(BitField("pwm", 0xFF))),
-        Register("D3_I_CTL", 0x28, fields=(BitField("pwm", 0xFF))),
-        Register("D4_I_CTL", 0x29, fields=(BitField("pwm", 0xFF))),
-        Register("D5_I_CTL", 0x2A, fields=(BitField("pwm", 0xFF))),
-        Register("D6_I_CTL", 0x2B, fields=(BitField("pwm", 0xFF))),
-        Register("D7_I_CTL", 0x2C, fields=(BitField("pwm", 0xFF))),
-        Register("D8_I_CTL", 0x2D, fields=(BitField("pwm", 0xFF))),
-        Register("D9_I_CTL", 0x2E, fields=(BitField("pwm", 0xFF))),
+        Register("D1_I_CTL", 0x26, fields=(BitField("current", 0xFF))),
+        Register("D2_I_CTL", 0x27, fields=(BitField("current", 0xFF))),
+        Register("D3_I_CTL", 0x28, fields=(BitField("current", 0xFF))),
+        Register("D4_I_CTL", 0x29, fields=(BitField("current", 0xFF))),
+        Register("D5_I_CTL", 0x2A, fields=(BitField("current", 0xFF))),
+        Register("D6_I_CTL", 0x2B, fields=(BitField("current", 0xFF))),
+        Register("D7_I_CTL", 0x2C, fields=(BitField("current", 0xFF))),
+        Register("D8_I_CTL", 0x2D, fields=(BitField("current", 0xFF))),
+        Register("D9_I_CTL", 0x2E, fields=(BitField("current", 0xFF))),
         # 2F to 35 reserved
         Register(
             "MISC",
@@ -303,3 +303,64 @@ Device(
         ),
     ),
 )
+
+
+class LP55231:
+    def __init__(self):
+        self.dev = dev
+
+    def enable(self):
+        # FIXME: enable bit might be off by one
+        self.dev.set("CNTRL1", enable=1)
+        self.dev.set("MISC", var_d_sel=1, cp_mode=2, int_clk_en=1, clk_det_en=1)
+
+    def disable(self):
+
+        # FIXME: enable bit might be off by one
+        self.dev.set("CNTRL1", enable=0)
+
+    def reset(self):
+        self.dev.set("RESET", reset=0xFF)
+
+    def _check_channel_bounds(self, channel: int):
+        if channel < 0 or channel > 8:
+            raise ValueError("Invalid channel")
+
+    def _check_fader_bounds(self, fader: int):
+        if fader < 0 or fader > 2:
+            raise ValueError("Invalid channel")
+
+    def set_channel_PMW(self, channel: int, value: int):
+        self._check_channel_bounds(channel)
+        # TODO: Add error return value
+        reg = f"D{channel+1}_PWM"
+        self.dev.set(reg, pwm=value)
+
+    def set_master_fader(self, fader: int, value: int):
+        self._check_fader_bounds(fader)
+
+        self.dev.set(f"MASTER_FADE_{fader+1}", fader=value)
+
+    def set_log_brightness(self, channel: int, enable: bool):
+        self._check_channel_bounds(channel)
+        reg = f"D{channel+1}_CTRL"
+        self.dev.set(reg, log_en=enable)
+
+    def set_drive_current(self, channel: int, value: int):
+        self._check_channel_bounds(channel)
+        reg = f"D{channel+1}_I_CTL"
+        self.dev.set(reg, current=value)
+
+    def assign_channel_to_master_fader(self, channel: int, fader: int):
+        self._check_channel_bounds(channel)
+        self._check_fader_bounds(fader)
+        reg = f'D{channel+1}_CTRL'
+        self.dev.set(reg, mapping=fader)
+
+    def set_charge_pump_mode(self, mode: int):
+        if mode < 0 or mode > 3:
+            raise ValueError('Invalid charge pump mode')
+        self.dev.set('MISC', cp_mode=mode)
+
+    
+
