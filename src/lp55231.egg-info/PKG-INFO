@@ -1,0 +1,12 @@
+Metadata-Version: 2.1
+Name: lp55231
+Version: 0.0.1
+Summary: lp55231 LED emitter bindings for i2cdevice and telemetrix
+Author-email: Paul Morenkov <paulmorenkov@gmail.com>
+Project-URL: Homepage, https://github.com/paul-morenkov/lp55231
+Project-URL: Issues, https://github.com/paul-morenkov/lp55231/issues
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+# lp55231
