@@ -330,7 +330,7 @@ class LP55231:
         if fader < 0 or fader > 2:
             raise ValueError("Invalid channel")
 
-    def set_channel_PMW(self, channel: int, value: int):
+    def set_channel_PWM(self, channel: int, value: int):
         self._check_channel_bounds(channel)
         # TODO: Add error return value
         reg = f"D{channel+1}_PWM"
